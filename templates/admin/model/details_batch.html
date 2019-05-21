@@ -1,0 +1,71 @@
+{% extends 'admin/master.html' %}
+{% import 'admin/lib.html' as lib with context %}
+
+{% block body %}
+  {% block navlinks %}
+  <ul class="nav nav-tabs">
+    <li>
+        <a href="{{ return_url }}">{{ _gettext('List') }}</a>
+    </li>
+    {%- if admin_view.can_create -%}
+    <li>
+        <a href="{{ get_url('.create_view', url=return_url) }}">{{ _gettext('Create') }}</a>
+    </li>
+    {%- endif -%}
+    {%- if admin_view.can_edit -%}
+    <li>
+        <a href="{{ get_url('.edit_view', id=request.args.get('id'), url=return_url) }}">{{ _gettext('Edit') }}</a>
+    </li>
+    {%- endif -%}
+    <li class="active">
+        <a href="javascript:void(0)">{{ _gettext('Details') }}</a>
+    </li>
+  </ul>
+  {% endblock %}
+
+  {% block details_search %}
+    <div class="input-group fa_filter_container col-lg-6">
+      <span class="input-group-addon">{{ _gettext('Filter') }}</span>
+      <input id="fa_filter" type="text" class="form-control">
+    </div>
+  {% endblock %}
+
+  {% block details_table %}
+    <table class="table table-hover table-bordered searchable">
+    {% for c, name in details_columns %}
+        {% if name == "Document Stats" %}
+        <tr>
+            <td><b>{{ name }}</b></td>
+            <td><b># of documents in batch: {{ count_all(get_value(model, 'uuid')) }}</b></td>
+        </tr>
+        <tr>
+            <td><b>Planned:</b></td>
+            <td>{{ count_planned(get_value(model, 'uuid')) }}</td>
+        </tr>
+        <tr>
+            <td><b>Started:</b></td>
+            <td>{{ count_started(get_value(model, 'uuid')) }}</td>
+        </tr>
+        <tr>
+            <td><b>Finished:</b></td>
+            <td>{{ count_finished(get_value(model, 'uuid')) }}</td>
+        </tr>
+        <tr>
+            <td><b>Failed:</b></td>
+            <td>{{ count_failed(get_value(model, 'uuid')) }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td><b>{{ name }}</b></td>
+            <td>{{ get_value(model, c) }}</td>
+        </tr>
+        {% endif %}
+    {% endfor %}
+    </table>
+  {% endblock %}
+{% endblock %}
+
+{% block tail %}
+  {{ super() }}
+  <script src="{{ admin_static.url(filename='admin/js/details_filter.js', v='1.0.0') }}"></script>
+{% endblock %}
